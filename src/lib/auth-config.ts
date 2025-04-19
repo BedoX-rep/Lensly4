@@ -28,13 +28,23 @@ export async function signInWithEmail(email: string, password: string) {
             data.user.email || '', 
             metadata.display_name || 'User'
           );
+          // Immediately sign out new users with inactive subscription
+          const subscriptionError = { message: 'Your subscription is inactive. Please contact support to activate your account.' };
+          await supabase.auth.signOut();
+          return { data: null, error: subscriptionError };
         } else {
+          // Check if subscription status is inactive or expired
+          if (subscription.subscription_status === 'inActive') {
+            const subscriptionError = { message: 'Your subscription is inactive. Please contact support to activate your account.' };
+            await supabase.auth.signOut();
+            return { data: null, error: subscriptionError };
+          }
+          
           // Check if subscription is expired
           const currentDate = new Date();
           const endDate = new Date(subscription.end_date);
           
           if (currentDate > endDate) {
-            // Subscription expired
             const subscriptionError = { message: 'Your subscription has expired. Please renew to continue.' };
             await supabase.auth.signOut();
             return { data: null, error: subscriptionError };
