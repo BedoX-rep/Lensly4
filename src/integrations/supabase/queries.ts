@@ -9,20 +9,18 @@ export async function createTrialSubscription(userId: string, email: string, dis
   }
   
   try {
-    const startDate = new Date();
-    const endDate = new Date();
-    endDate.setDate(endDate.getDate() + 7); // 7 days trial
-
     const { data, error } = await supabaseAdmin
       .from('subscriptions')
       .insert({
         user_id: userId,
         email: email,
         display_name: displayName,
-        start_date: startDate.toISOString(),
-        end_date: endDate.toISOString(),
-        trial_used: true,
-        created_at: startDate.toISOString()
+        start_date: null,
+        end_date: null,
+        subscription_type: null,
+        trial_used: false,
+        subscription_status: 'inActive',
+        created_at: new Date().toISOString()
       })
       .select()
       .single();
