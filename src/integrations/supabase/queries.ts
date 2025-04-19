@@ -29,7 +29,12 @@ export async function createTrialSubscription(userId: string, email: string, dis
       console.error('Database error creating subscription:', error);
       return null;
     }
-    
+
+    // Sign out the user immediately after creating inactive subscription
+    await supabase.auth.signOut();
+    // Clear any cached auth state
+    window.localStorage.removeItem('sb-' + import.meta.env.VITE_SUPABASE_URL + '-auth-token');
+    // Return data even though we signed out
     return data;
   } catch (error) {
     console.error('Error creating trial subscription:', error);
